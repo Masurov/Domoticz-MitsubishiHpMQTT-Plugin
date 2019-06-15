@@ -10,8 +10,6 @@
     <params>
         <param field="Address" label="MQTT Server address" width="300px" required="true" default="127.0.0.1"/>
         <param field="Port" label="Port" width="300px" required="true" default="1883"/>
-        <param field="Username" label="Username" width="300px"/>
-        <param field="Password" label="Password" width="300px"/>
         <param field="Mode5" label="Heatpump MQTT topic" width="300px" required="true" default="heatpump"/>
         
         <param field="Mode6" label="Debug" width="75px">
