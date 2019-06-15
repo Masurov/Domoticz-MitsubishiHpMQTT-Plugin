@@ -1,7 +1,7 @@
 # Domoticz-MitsubishiHpMQTT-Plugin
 Mitsubishi Air Conditionner Domoticz plugin interfacing Swicago MQTT ESP
 
-[[https://github.com/Masurov/Domoticz-MitsubishiHpMQTT-Plugin/blob/master/devices.png|alt=Domoticz AC devices]]
+<img src="https://github.com/Masurov/Domoticz-MitsubishiHpMQTT-Plugin/blob/master/devices.png"/>
 
 ## Key Features
 
