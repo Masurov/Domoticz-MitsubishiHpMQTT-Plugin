@@ -420,7 +420,9 @@ class SelectorDeviceMapping(DeviceMapping):
         
         #adds a dummy items at the beginning of supplied dic
         if (offHidden):
-            dzLevels = {"": "", **dzLevels}
+            dzLevels.update({"":""})
+            dzLevels.move_to_end("", last=False)
+            
 
         #build selector level value <=> external value dic
         self.dzLevelValueToExt = bijection.bijection()
