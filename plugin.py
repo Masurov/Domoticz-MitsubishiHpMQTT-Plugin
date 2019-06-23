@@ -27,6 +27,7 @@
 import Domoticz
 import json
 import time
+from collections import OrderedDict
 import bijection
 
 class MqttClient:
@@ -181,22 +182,22 @@ class BasePlugin:
             self.payloadKeyToDevice["power"] = self.powerDeviceMapping
 
             Domoticz.Debug("Mapping mode")
-            self.modeDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Mode", "MODE", "mode", usedByDefault=True, dzLevels = {'Auto':'AUTO', 'Froid':'COOL', 'Déshum.':'DRY', 'Chaud':"HEAT", 'Ventil.':'FAN'}, offHidden=True)
+            self.modeDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Mode", "MODE", "mode", usedByDefault=True, dzLevels = OrderedDict([('Auto','AUTO'), ('Froid','COOL'), ('Déshum.','DRY'), ('Chaud','HEAT'), ('Ventil.','FAN')]) , offHidden=True)
             self.mappedDevicesByUnit[self.modeDeviceMapping.dzDevice.Unit] = self.modeDeviceMapping
             self.payloadKeyToDevice["mode"] = self.modeDeviceMapping
 
             Domoticz.Debug("Mapping fan")
-            self.fanDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Flux", "FAN", "fan", usedByDefault=True, dzLevels = {'Auto':'AUTO', 'Silence':'QUIET', '1':'1', '2':'2', '3':'3', '4':'4'}, offHidden=True)
+            self.fanDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Flux", "FAN", "fan", usedByDefault=True, dzLevels = OrderedDict([('Auto','AUTO'), ('Silence','QUIET'), ('1','1'), ('2','2'), ('3','3'), ('4','4')]), offHidden=True)
             self.mappedDevicesByUnit[self.fanDeviceMapping.dzDevice.Unit] = self.fanDeviceMapping
             self.payloadKeyToDevice["fan"] = self.fanDeviceMapping
 
             Domoticz.Debug("Mapping vane")
-            self.vVaneDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Inclinaison", "VVANE", "vane", usedByDefault=True, dzLevels = {'Auto':'AUTO', '1':'1', '2':'2', '3':'3', '4':'4', '5':'5', 'Oscillant':'SWING'}, offHidden=True)
+            self.vVaneDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Inclinaison", "VVANE", "vane", usedByDefault=True, dzLevels = OrderedDict([('Auto','AUTO'), ('1','1'), ('2','2'), ('3','3'), ('4','4'), ('5','5'), ('Oscillant','SWING')]), offHidden=True)
             self.mappedDevicesByUnit[self.vVaneDeviceMapping.dzDevice.Unit] = self.vVaneDeviceMapping
             self.payloadKeyToDevice["vane"] = self.vVaneDeviceMapping
 
             Domoticz.Debug("Mapping wvane")
-            self.wVaneDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Direction", "WVANE", "wideVane", usedByDefault=True, dzLevels = {'<<':'<<', '<':'<', 'V':'|', '>':'>', '>>':'>>', 'Oscillant':'SWING'}, offHidden=True)
+            self.wVaneDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Direction", "WVANE", "wideVane", usedByDefault=True, dzLevels = OrderedDict([('<<','<<'), ('<','<'), ('V','|'), ('>','>'), ('>>','>>'), ('Oscillant','SWING')]) , offHidden=True)
             self.mappedDevicesByUnit[self.wVaneDeviceMapping.dzDevice.Unit] = self.wVaneDeviceMapping
             self.payloadKeyToDevice["wideVane"] = self.wVaneDeviceMapping
 
