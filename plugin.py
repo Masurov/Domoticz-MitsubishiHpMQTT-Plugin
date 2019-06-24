@@ -27,7 +27,6 @@
 import Domoticz
 import json
 import time
-from collections import OrderedDict
 import bijection
 
 class MqttClient:
@@ -182,22 +181,22 @@ class BasePlugin:
             self.payloadKeyToDevice["power"] = self.powerDeviceMapping
 
             Domoticz.Debug("Mapping mode")
-            self.modeDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Mode", "MODE", "mode", usedByDefault=True, dzLevels = OrderedDict([('Auto','AUTO'), ('Froid','COOL'), ('Déshum.','DRY'), ('Chaud','HEAT'), ('Ventil.','FAN')]) , offHidden=True)
+            self.modeDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Mode", "MODE", "mode", usedByDefault=True, dzLevelsCodes = [('Auto','AUTO'), ('Froid','COOL'), ('Déshum.','DRY'), ('Chaud','HEAT'), ('Ventil.','FAN')] , offHidden=True)
             self.mappedDevicesByUnit[self.modeDeviceMapping.dzDevice.Unit] = self.modeDeviceMapping
             self.payloadKeyToDevice["mode"] = self.modeDeviceMapping
 
             Domoticz.Debug("Mapping fan")
-            self.fanDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Flux", "FAN", "fan", usedByDefault=True, dzLevels = OrderedDict([('Auto','AUTO'), ('Silence','QUIET'), ('1','1'), ('2','2'), ('3','3'), ('4','4')]), offHidden=True)
+            self.fanDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Flux", "FAN", "fan", usedByDefault=True, dzLevelsCodes = [('Auto','AUTO'), ('Silence','QUIET'), ('1','1'), ('2','2'), ('3','3'), ('4','4')], offHidden=True)
             self.mappedDevicesByUnit[self.fanDeviceMapping.dzDevice.Unit] = self.fanDeviceMapping
             self.payloadKeyToDevice["fan"] = self.fanDeviceMapping
 
             Domoticz.Debug("Mapping vane")
-            self.vVaneDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Inclinaison", "VVANE", "vane", usedByDefault=True, dzLevels = OrderedDict([('Auto','AUTO'), ('1','1'), ('2','2'), ('3','3'), ('4','4'), ('5','5'), ('Oscillant','SWING')]), offHidden=True)
+            self.vVaneDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Inclinaison", "VVANE", "vane", usedByDefault=True, dzLevelsCodes = [('Auto','AUTO'), ('1','1'), ('2','2'), ('3','3'), ('4','4'), ('5','5'), ('Oscillant','SWING')], offHidden=True)
             self.mappedDevicesByUnit[self.vVaneDeviceMapping.dzDevice.Unit] = self.vVaneDeviceMapping
             self.payloadKeyToDevice["vane"] = self.vVaneDeviceMapping
 
             Domoticz.Debug("Mapping wvane")
-            self.wVaneDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Direction", "WVANE", "wideVane", usedByDefault=True, dzLevels = OrderedDict([('<<','<<'), ('<','<'), ('V','|'), ('>','>'), ('>>','>>'), ('Oscillant','SWING')]) , offHidden=True)
+            self.wVaneDeviceMapping = SelectorDeviceMapping(self.PluginKey, self.HardwareID, "Direction", "WVANE", "wideVane", usedByDefault=True, dzLevelsCodes = [('<<','<<'), ('<','<'), ('V','|'), ('>','>'), ('>>','>>'), ('Oscillant','SWING')] , offHidden=True)
             self.mappedDevicesByUnit[self.wVaneDeviceMapping.dzDevice.Unit] = self.wVaneDeviceMapping
             self.payloadKeyToDevice["wideVane"] = self.wVaneDeviceMapping
 
@@ -406,7 +405,7 @@ class SwitchDeviceMapping(DeviceMapping):
 
 class SelectorDeviceMapping(DeviceMapping):
     
-    def __init__(self, pluginKey, hardwareId, deviceLabel, deviceKeyname, externalDeviceId, usedByDefault, dzLevels, offHidden, dropdownStyle=False):
+    def __init__(self, pluginKey, hardwareId, deviceLabel, deviceKeyname, externalDeviceId, usedByDefault, dzLevelsCodes, offHidden, dropdownStyle=False):
         DeviceMapping.__init__(self, pluginKey, hardwareId, deviceLabel, deviceKeyname, externalDeviceId, usedByDefault)
         
         self.offHidden = offHidden
@@ -418,23 +417,20 @@ class SelectorDeviceMapping(DeviceMapping):
         
         Domoticz.Debug("SelectorDeviceMapping init : dzLevels dic init")
         
-        #adds a dummy items at the beginning of supplied dic
+        #adds a dummy items at the beginning of supplied list
         if (offHidden):
-            dzLevels.update({"":""})
-            dzLevels.move_to_end("", last=False)
-            
+            dzLevelsCodes.insert(0, ("",""))
 
         #build selector level value <=> external value dic
-        self.dzLevelValueToExt = bijection.bijection()
+        self.dzLevels = []
         self.dzLevelValueToLabel = bijection.bijection()
+        self.dzLevelValueToExt = bijection.bijection()
         
-
-        Domoticz.Debug("SelectorDeviceMapping init : dzLevelValueToExt, dzLevelValueToLabel  init")
-
         levelvalue = 0
-        for (levelname, extlevel) in dzLevels.items():
-            self.dzLevelValueToExt[str(levelvalue)] = extlevel
-            self.dzLevelValueToLabel[str(levelvalue)] = levelname
+        for labelCodeTuple in dzLevelsCodes:
+            self.dzLevels.append(labelCodeTuple[0])
+            self.dzLevelValueToLabel[str(levelvalue)] = labelCodeTuple[0]
+            self.dzLevelValueToExt[str(levelvalue)] = labelCodeTuple[1]
             levelvalue += 10
         
         self.InitLevelImages()
@@ -464,8 +460,8 @@ class SelectorDeviceMapping(DeviceMapping):
                 self.imageIdByValue[levelValue] = None
 
     def CreateDzDevice(self, newDeviceUnit):
-        levelsActions = "|".join(["" for k in self.dzLevelValueToLabel.keys()])
-        levelNames = "|".join(self.dzLevelValueToLabel.values())
+        levelsActions = "|".join(["" for k in self.dzLevels])
+        levelNames = "|".join(self.dzLevels)
         levelOffHidden = "false"
         if (self.offHidden):
             levelOffHidden = "true"
