@@ -18,7 +18,9 @@ Mitsubishi Air Conditionner Domoticz plugin interfacing Swicago MQTT ESP
 ## Prerequisites 
 
 * MQTT broker running
-* Hardware interface with the AC [Swicago Heatpump MQTT program](https://github.com/SwiCago/HeatPump) setup to use your MQTT broker
+* Hardware interface with the AC [Swicago Heatpump MQTT program](https://github.com/SwiCago/HeatPump/tree/master/examples/mitsubishi_heatpump_mqtt_esp8266_esp32) setup to use your MQTT broker
+
+/!\ beware, Gysmo38's Mitsubishi2MQTT implementation won't work because it's specific to HomeAssistant.
  
 ## Installation
 
