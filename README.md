@@ -55,5 +55,6 @@ To update:
 
 | Version | Information|
 | ----- | ---------- |
+| 1.2 | Added login and password parameters for MQTT broker connection |
 | 1.1 | Fixes wrong selector levels with python version under 3.7 |
 | 1.0 | Initial upload version |
