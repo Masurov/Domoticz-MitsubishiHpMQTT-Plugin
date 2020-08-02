@@ -6,10 +6,12 @@
 #   Plugin parameter definition below will be parsed during startup and copied into Manifest.xml, this will then drive the user interface in the Hardware web page
 
 """
-<plugin key="MitsubishiHpMqtt" name="Mitsubishi Heatpump MQTT interface Plugin" author="Masure" version="1.1" externallink="">
+<plugin key="MitsubishiHpMqtt" name="Mitsubishi Heatpump MQTT interface Plugin" author="Masure" version="1.2" externallink="">
     <params>
         <param field="Address" label="MQTT Server address" width="300px" required="true" default="127.0.0.1"/>
         <param field="Port" label="Port" width="300px" required="true" default="1883"/>
+        <param field="Username" label="MQTT login" width="300px" default=""/>
+        <param field="Password" label="MQTT password" width="300px" default="" password="true" />
         <param field="Mode5" label="Heatpump MQTT topic" width="300px" required="true" default="heatpump"/>
         
         <param field="Mode6" label="Debug" width="75px">
