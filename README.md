@@ -30,8 +30,8 @@ Mitsubishi Air Conditionner Domoticz plugin interfacing Swicago MQTT ESP
       hp.setStatusChangedCallback(hpStatusChanged);
       hp.setPacketCallback(hpPacketDebug);
       // vvv theses lines should be added to prevent unsync if you use remote
-      hp.enableAutoUpdate ();
-      hp.enableExternalUpdate ();
+      hp.enableAutoUpdate();
+      hp.enableExternalUpdate();
       ```
     * Compile and upload the program
  
