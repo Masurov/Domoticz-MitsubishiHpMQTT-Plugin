@@ -510,7 +510,7 @@ class SetpointDeviceMapping(DeviceMapping):
         return
 
     def DzCommandToExt(self, command, level):
-        return int(float(level))
+        return float(level)
 
 class TemperatureDeviceMapping(DeviceMapping):
 
