@@ -24,13 +24,15 @@ Mitsubishi Air Conditionner Domoticz plugin interfacing Swicago MQTT ESP
   * Configure, compile and upload his [Swicago Heatpump MQTT program](https://github.com/SwiCago/HeatPump/tree/master/examples/mitsubishi_heatpump_mqtt_esp8266_esp32)
     * Edit mitsubishi_heatpump_mqtt_esp8266_esp32.h to setup wifi, mqtt connection
     * Edit mitsubishi_heatpump_mqtt_esp8266_esp32.ino to add  
-    ```C
-  // connect to the heatpump. Callbacks first so that the hpPacketDebug callback is available for connect()
-  hp.setSettingsChangedCallback(hpSettingsChanged);
-  hp.setStatusChangedCallback(hpStatusChanged);
-  hp.setPacketCallback(hpPacketDebug);
-  hp.enableAutoUpdate(); // <= this line should be added to prevent unsync if you use remote
-  ```
+      ```C
+      // connect to the heatpump. Callbacks first so that the hpPacketDebug callback is available for connect()
+      hp.setSettingsChangedCallback(hpSettingsChanged);
+      hp.setStatusChangedCallback(hpStatusChanged);
+      hp.setPacketCallback(hpPacketDebug);
+      // vvv theses lines should be added to prevent unsync if you use remote
+      hp.enableAutoUpdate ();
+      hp.enableExternalUpdate ();
+      ```
     * Compile and upload the program
  
 ## Plugin Installation
