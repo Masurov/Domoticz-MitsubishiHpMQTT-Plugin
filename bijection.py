@@ -3,8 +3,7 @@
 from collections import MutableMapping, Mapping
 
 
-class bijection(MutableMapping):
-	"""A one-to-one onto mapping, a dict with unique values."""
+class Bijection(MutableMapping):
 
 	def __init__(self, iterable=None, **kwarg):
 		"""Create a bijection from an iterable.
@@ -12,7 +11,7 @@ class bijection(MutableMapping):
 		Matches dict.__init__.
 		"""
 		self._data = {}
-		self.__inverse = self.__new__(bijection)
+		self.__inverse = self.__new__(Bijection)
 		self.__inverse._data = {}
 		self.__inverse.__inverse = self
 		if iterable is not None:
@@ -76,7 +75,7 @@ class bijection(MutableMapping):
 
 	def copy(self):
 		"""Return a copy of this bijection."""
-		return bijection(self)
+		return Bijection(self)
 
 	def items(self):
 		"""See Mapping.items."""
@@ -91,4 +90,4 @@ class bijection(MutableMapping):
 		return self.inverse.keys()
 
 	def __eq__(self, other):
-		return isinstance(other, bijection) and self._data == other._data
+		return isinstance(other, Bijection) and self._data == other._data
