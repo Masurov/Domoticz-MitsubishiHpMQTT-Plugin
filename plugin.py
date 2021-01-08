@@ -31,7 +31,7 @@
         <param field="Port" label="Port" width="300px" required="true" default="1883"/>
         <param field="Username" label="MQTT login" width="300px" default=""/>
         <param field="Password" label="MQTT password" width="300px" default="" password="true" />
-        <param field="Mode1" label="Remote temperature device ID (leave blank to use internal heatpump sensor)" width="150px" required="false" default=""/>
+        <param field="Mode1" label="Remote temperature device Idx (leave blank to use internal heatpump sensor)" width="150px" required="false" default=""/>
         <param field="Mode2" label="Domoticz base url (required only if you use a remote temperature device)" width="300px" required="false" default="http://localhost:8080"/>
         <param field="Mode3" label="Don't send remote temp after being unseen for X minutes" width="50px" required="true" default="30"/>       
         <param field="Mode5" label="Heatpump MQTT topic" width="300px" required="true" default="heatpump"/>       

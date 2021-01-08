@@ -63,6 +63,9 @@ To update:
 | Port | Port of your MQTT broker |
 | Login | MQTT broker login (if needed) |
 | Password | MQTT broker password (if needed) |
+| Remote temperature device ID | Set this with the temperature sensor device Idx if you want to use one of your domoticz temperature device instead of the heatpump internal sensor |
+| Domoticz base url | Required for "Remote temperature device ID" usage. Used to get the temperature value from the web API. Should be something like http://127.0.0.1:8080. Requires to setup the authentication bypass for local networks in domoticz Settings > System. |
+| Don't send remote temp after being unseen for X minutes | If the temperature device value exceeds this delay, the heatpump will be set to use its internal sensor |
 | Heatpump MQTT topic | MQTT topic the ESP has been programmed with (heatpump by default) |
 | Debug | When true the logging level will be much higher to aid with troubleshooting |
 
@@ -70,6 +73,7 @@ To update:
 
 | Version | Information|
 | ----- | ---------- |
+| 1.3 | Added remote temperature sending to the heatpump |
 | 1.2 | Added login and password parameters for MQTT broker connection |
 | 1.1 | Fixes wrong selector levels with python version under 3.7 |
 | 1.0 | Initial upload version |
