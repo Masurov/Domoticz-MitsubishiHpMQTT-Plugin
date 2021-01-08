@@ -6,14 +6,33 @@
 #   Plugin parameter definition below will be parsed during startup and copied into Manifest.xml, this will then drive the user interface in the Hardware web page
 
 """
-<plugin key="MitsubishiHpMqtt" name="Mitsubishi Heatpump MQTT interface Plugin" author="Masure" version="1.2" externallink="">
+<plugin key="MitsubishiHpMqtt" name="Mitsubishi Heatpump MQTT interface Plugin" author="Masure" version="1.3" externallink="https://github.com/Masurov/Domoticz-MitsubishiHpMQTT-Plugin">
+    <description>
+        <h2>Mitsubishi Heatpump MQTT Interface</h2>
+        <p>Please read the github documentation for prerequisites</p>
+        <h3>Features</h3>
+        <ul style="list-style-type:square">
+            <li>Devices for full control over the heatpump</li>
+            <li>Can use a temperature sensor device in Domoticz instead of the internal one</li>
+        </ul>
+        <h3>Devices</h3>
+        <ul style="list-style-type:square">
+            <li>Power - VAC ON/OFF status</li>
+            <li>Mode - Auto, Cool, Dry, Heat, Fan modes selector</li>
+            <li>Fan Speed - Selector switch for fan speed</li>
+            <li>Vertical Vane - Selector switch for vertical vane</li>
+            <li>Horizontal Vane - Selector switch for horizontal vane</li>
+            <li>Temperature sensor - Internal temperature sensor</li>
+            <li>Temperature setpoint - desired temperature setpoint</li>
+        </ul>
+    </description>
     <params>
         <param field="Address" label="MQTT Server address" width="300px" required="true" default="127.0.0.1"/>
         <param field="Port" label="Port" width="300px" required="true" default="1883"/>
         <param field="Username" label="MQTT login" width="300px" default=""/>
         <param field="Password" label="MQTT password" width="300px" default="" password="true" />
-        <param field="Mode1" label="Remote temperature device ID (leave blank to use internal VAC sensor)" width="150px" required="false" default=""/>
-        <param field="Mode2" label="Domoticz base url (required for querying the device temperature)" width="300px" required="false" default="http://localhost:8080"/>
+        <param field="Mode1" label="Remote temperature device ID (leave blank to use internal heatpump sensor)" width="150px" required="false" default=""/>
+        <param field="Mode2" label="Domoticz base url (required only if you use a remote temperature device)" width="300px" required="false" default="http://localhost:8080"/>
         <param field="Mode3" label="Don't send remote temp after being unseen for X minutes" width="50px" required="true" default="30"/>       
         <param field="Mode5" label="Heatpump MQTT topic" width="300px" required="true" default="heatpump"/>       
         <param field="Mode6" label="Debug" width="75px">
