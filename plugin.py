@@ -12,8 +12,10 @@
         <param field="Port" label="Port" width="300px" required="true" default="1883"/>
         <param field="Username" label="MQTT login" width="300px" default=""/>
         <param field="Password" label="MQTT password" width="300px" default="" password="true" />
-        <param field="Mode5" label="Heatpump MQTT topic" width="300px" required="true" default="heatpump"/>
-        
+        <param field="Mode1" label="Remote temperature device ID (leave blank to use internal VAC sensor)" width="150px" required="false" default=""/>
+        <param field="Mode2" label="Domoticz base url (required for querying the device temperature)" width="300px" required="false" default="http://localhost:8080"/>
+        <param field="Mode3" label="Don't send remote temp after being unseen for X minutes" width="50px" required="true" default="30"/>       
+        <param field="Mode5" label="Heatpump MQTT topic" width="300px" required="true" default="heatpump"/>       
         <param field="Mode6" label="Debug" width="75px">
             <options>
                 <option label="Extra verbose: (Framework logs 2+4+8+16+64 + MQTT dump)" value="Verbose+"/>
@@ -29,6 +31,10 @@
 import bijection
 import Domoticz
 import json
+import urllib.request, urllib.error, urllib.parse
+import datetime
+import time
+import traceback
 from mqttclient import MqttClient
 from devicemappings.switchdevice import SwitchDeviceMapping
 from devicemappings.selectordevice import SelectorDeviceMapping
@@ -39,6 +45,9 @@ from devicemappings.setpointdevice import SetpointDeviceMapping
 class BasePlugin:
     mqttClient = None
 
+    def ShouldSendRemoteTemp(self):
+        return self.RemoteTempDeviceId != None and self.RemoteTempDeviceId
+
     def __init__(self):
         self.mappedDevicesByUnit = {}
     
@@ -47,13 +56,18 @@ class BasePlugin:
         self.RoomTempTopic = None
         self.HardwareID = None
         self.PluginKey = None
+        self.RemoteTempDeviceId = None
+        self.DomoticzBaseUrl = None
+        self.RemoteTempMaxEllapsedMinutes = 60
+        self.RemoteTempLastSentValue = None
         return
 
     def onStart(self):
 
         try:
+            #Domoticz.Trace(True)
             Domoticz.Heartbeat(10)
-
+           
             self.PluginKey = "MitsubishiHpMqtt"
             self.HardwareID = Parameters["HardwareID"]
             self.debugging = Parameters["Mode6"]
@@ -63,8 +77,20 @@ class BasePlugin:
                 Domoticz.Debugging(2)
             self.HeatpumpTopic = Parameters["Mode5"]
             self.HeatpumpSetTopic = self.HeatpumpTopic + "/set"
-            self.RoomTempTopic = self.HeatpumpTopic + "/status"
+            self.RoomTempTopic = self.HeatpumpTopic + "/status"           
+            self.RemoteTempDeviceId = Parameters["Mode1"]
+            self.DomoticzBaseUrl = Parameters["Mode2"]
 
+            if (self.ShouldSendRemoteTemp() and not self.DomoticzBaseUrl):
+                self.RemoteTempDeviceId = None
+                Domoticz.Error("Domoticz base url required and not set in plugin parameters. Remote temp sending disabled")
+
+            try:
+                self.RemoteTempMaxEllapsedMinutes = int(Parameters["Mode3"])
+            except ValueError :
+                self.RemoteTempMaxEllapsedMinutes = 30
+                Domoticz.Error("Wrong parameter value for remote temp sensor maximum minutes, setting default : " + str(self.RemoteTempMaxEllapsedMinutes))
+                
 
             self.mappedDevicesByUnit = {}
             self.payloadKeyToDevice = bijection.Bijection()
@@ -109,7 +135,7 @@ class BasePlugin:
             clientIdPrefix = 'Domoticz_'+Parameters['Key']+'_'+str(Parameters['HardwareID'])
             self.mqttClient = MqttClient(self.mqttserveraddress, self.mqttserverport, clientIdPrefix, self.onMQTTConnected, self.onMQTTDisconnected, self.onMQTTPublish, None)
         except Exception as e:
-            Domoticz.Error("MQTT client start error: "+str(e))
+            Domoticz.Error("Start error: "+str(e))
             self.mqttClient = None
     
     def onStop(self):
@@ -134,13 +160,7 @@ class BasePlugin:
         except Exception as e:
             Domoticz.Debug(str(e))
             return False
-    
-    def iif(self, boolValue, trueValue, falseValue):
-        if (boolValue == True):
-            return trueValue
-        else:
-            return falseValue
-         
+
     def onConnect(self, Connection, Status, Description):
        if self.mqttClient is not None:
         self.mqttClient.onConnect(Connection, Status, Description)
@@ -152,6 +172,62 @@ class BasePlugin:
     def onMessage(self, Connection, Data):
        if self.mqttClient is not None:
         self.mqttClient.onMessage(Connection, Data)
+    
+    #workaround for issue https://bugs.python.org/issue27400
+    def strptime(self, datestring, format):
+        parsedDate = None
+        try:
+          parsedDate = datetime.datetime.strptime(datestring, format)
+        except TypeError:
+          parsedDate = datetime.datetime.fromtimestamp(time.mktime(time.strptime(datestring, format)))
+        
+        return parsedDate
+        
+    def TrySendRemoteTemp(self):
+      
+        Domoticz.Debug("TrySendRemoteTemp")
+        
+        domoticzRemoteTempUrl = self.DomoticzBaseUrl + '/json.htm?type=devices&rid=' + str(self.RemoteTempDeviceId)
+        Domoticz.Debug(" Querying Domoticz remote temp : " + domoticzRemoteTempUrl)
+
+        request = urllib.request.Request(domoticzRemoteTempUrl)
+        response = urllib.request.urlopen(request, timeout=0.5)
+        requestResponse = response.read()
+        json_object = json.loads(requestResponse)
+
+        if not json_object["status"] == "OK" :
+            raise ValueError('Bad response for remote temperature device request')
+
+        if not json_object["result"] :
+            raise ValueError('No device found for parametrized remote temperature device Idx (' + str(self.RemoteTempDeviceId) + ')')
+
+        if not "Temp" in json_object["result"][0] :
+            raise ValueError('Parametrized device for remote temperature is not a temperature device')
+            
+
+        lastUpdateString = json_object["result"][0]['LastUpdate'] #YYYY-mm-dd hh:mm:ss
+        remoteTempToSend = json_object["result"][0]['Temp'] #YYYY-MM-dd hh:mm:ss
+        
+        #compute lastseen
+        lastUpdateTime = self.strptime(lastUpdateString, '%Y-%m-%d %H:%M:%S')
+        now = datetime.datetime.now()
+        ellapsedMinutesSinceLastSeen = (now - lastUpdateTime).total_seconds() / 60
+        
+        if (ellapsedMinutesSinceLastSeen > self.RemoteTempMaxEllapsedMinutes) :
+            Domoticz.Debug("    temperature value too old (" + str(ellapsedMinutesSinceLastSeen) + ") resetting remote temp" )
+            remoteTempToSend = 0 #send 0 if the temperature is too old so the VAC use its internal sensor
+
+        #send temp or reset
+        self.RemoteTempLastSentValue = remoteTempToSend
+
+        #does not resend the special value 0 if previously sent (no need to spam)
+        if (self.RemoteTempLastSentValue == 0 and remoteTempToSend == 0):
+            Domoticz.Debug("    remote temp is already 0, sending discarded")
+            return
+
+        payloaddic = { 'remoteTemp' : remoteTempToSend}
+        Domoticz.Debug("    publishing on " + self.HeatpumpSetTopic + " : " + str(json.dumps(payloaddic)))
+        self.mqttClient.Publish(self.HeatpumpSetTopic, json.dumps(payloaddic))
 
     def onHeartbeat(self):
         # Domoticz.Debug("Heartbeating...")
@@ -166,6 +242,13 @@ class BasePlugin:
                     self.mqttClient.Ping()
             except Exception as e:
                 Domoticz.Error(str(e))
+
+            #Remote temp
+            if (self.ShouldSendRemoteTemp() and self.mqttClient.isConnected):
+                try:
+                    self.TrySendRemoteTemp()
+                except Exception as e:
+                    Domoticz.Error("Failed to send remote temp : " + traceback.format_exc())
 
     def onMQTTConnected(self):
         if self.mqttClient is not None:
