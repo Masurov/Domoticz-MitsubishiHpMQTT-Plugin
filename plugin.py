@@ -237,7 +237,6 @@ class BasePlugin:
             remoteTempToSend = 0 #send 0 if the temperature is too old so the VAC use its internal sensor
 
         #send temp or reset
-        self.RemoteTempLastSentValue = remoteTempToSend
 
         #does not resend the special value 0 if previously sent (no need to spam)
         if (self.RemoteTempLastSentValue == 0 and remoteTempToSend == 0):
@@ -247,6 +246,7 @@ class BasePlugin:
         payloaddic = { 'remoteTemp' : remoteTempToSend}
         Domoticz.Debug("    publishing on " + self.HeatpumpSetTopic + " : " + str(json.dumps(payloaddic)))
         self.mqttClient.Publish(self.HeatpumpSetTopic, json.dumps(payloaddic))
+        self.RemoteTempLastSentValue = remoteTempToSend
 
     def onHeartbeat(self):
         # Domoticz.Debug("Heartbeating...")
