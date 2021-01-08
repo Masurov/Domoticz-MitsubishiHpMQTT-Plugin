@@ -53,7 +53,7 @@ class MqttClient:
             self.mqttConn.Send({'Verb': 'PING'})
 
     def Publish(self, topic, payload, retain = 0):
-        Domoticz.Log("MqttClient::Publish " + topic + " (" + payload + ")")
+        Domoticz.Debug("MqttClient::Publish " + topic + " (" + payload + ")")
         if (self.mqttConn == None or not self.isConnected):
             self.Open()
         else:
@@ -70,7 +70,7 @@ class MqttClient:
             self.mqttConn.Send({'Verb': 'SUBSCRIBE', 'Topics': subscriptionlist})
 
     def Close(self):
-        Domoticz.Log("MqttClient::Close")
+        Domoticz.Debug("MqttClient::Close")
         #TODO: Disconnect from server
         self.mqttConn = None
         self.isConnected = False
