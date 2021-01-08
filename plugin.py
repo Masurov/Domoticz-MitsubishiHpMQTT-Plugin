@@ -225,7 +225,8 @@ class BasePlugin:
             
 
         lastUpdateString = json_object["result"][0]['LastUpdate'] #YYYY-mm-dd hh:mm:ss
-        remoteTempToSend = json_object["result"][0]['Temp'] #YYYY-MM-dd hh:mm:ss
+        remoteTempToSend = json_object["result"][0]['Temp']
+        remoteTempToSend = round(remoteTempToSend * 2) / 2
         
         #compute lastseen
         lastUpdateTime = self.strptime(lastUpdateString, '%Y-%m-%d %H:%M:%S')
