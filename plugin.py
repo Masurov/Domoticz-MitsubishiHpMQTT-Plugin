@@ -215,7 +215,7 @@ class BasePlugin:
         Domoticz.Debug(" Querying Domoticz remote temp : " + domoticzRemoteTempUrl)
 
         request = urllib.request.Request(domoticzRemoteTempUrl)
-        response = urllib.request.urlopen(request, timeout=0.5)
+        response = urllib.request.urlopen(request, timeout=1)
         requestResponse = response.read()
         json_object = json.loads(requestResponse)
 
