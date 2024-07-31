@@ -6,7 +6,7 @@
 #   Plugin parameter definition below will be parsed during startup and copied into Manifest.xml, this will then drive the user interface in the Hardware web page
 
 """
-<plugin key="MitsubishiHpMqtt" name="Mitsubishi Heatpump MQTT interface Plugin" author="Masure" version="1.3" externallink="https://github.com/Masurov/Domoticz-MitsubishiHpMQTT-Plugin">
+<plugin key="MitsubishiHpMqtt" name="Mitsubishi Heatpump MQTT interface Plugin" author="Masure" version="1.4" externallink="https://github.com/Masurov/Domoticz-MitsubishiHpMQTT-Plugin">
     <description>
         <h2>Mitsubishi Heatpump MQTT Interface</h2>
         <p>Please read the github documentation for prerequisites</p>

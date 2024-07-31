@@ -71,9 +71,10 @@ To update:
 
 ## Change log
 
-| Version | Information|
-| ----- | ---------- |
-| 1.3 | Added remote temperature sending to the heatpump |
-| 1.2 | Added login and password parameters for MQTT broker connection |
-| 1.1 | Fixes wrong selector levels with python version under 3.7 |
-| 1.0 | Initial upload version |
+| Version | Information                                                      |
+|---------|------------------------------------------------------------------|
+| 1.4     | Remote temperature sending compatibility with Domoticz >= 2023.2 |
+| 1.3     | Added remote temperature sending to the heatpump                 |
+| 1.2     | Added login and password parameters for MQTT broker connection   |
+| 1.1     | Fixes wrong selector levels with python version under 3.7        |
+| 1.0     | Initial upload version                                           |
