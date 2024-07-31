@@ -1,12 +1,17 @@
 # Created by https://www.gitignore.io/api/code
 # Edit at https://www.gitignore.io/?templates=code
 
+**/__pycache__/
+
 ### Code ###
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+### PyCharm ###
+.idea/*
 
 .env
 # End of https://www.gitignore.io/api/code
