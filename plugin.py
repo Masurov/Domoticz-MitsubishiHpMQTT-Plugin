@@ -48,6 +48,7 @@
 """
 
 import bijection
+from DomoticzVersion import DomoticzVersion
 import Domoticz
 import json
 import urllib.request, urllib.error, urllib.parse
@@ -77,6 +78,7 @@ class BasePlugin:
         self.PluginKey = None
         self.RemoteTempDeviceId = None
         self.DomoticzBaseUrl = None
+        self.domoticzRemoteTempUrl = None
         self.RemoteTempMaxEllapsedMinutes = 60
         self.RemoteTempLastSentValue = None
         return
@@ -103,6 +105,13 @@ class BasePlugin:
             if (self.ShouldSendRemoteTemp() and not self.DomoticzBaseUrl):
                 self.RemoteTempDeviceId = None
                 Domoticz.Error("Domoticz base url required and not set in plugin parameters. Remote temp sending disabled")
+
+            if (self.ShouldSendRemoteTemp()):
+                versionParsed, domoticzVersion = DomoticzVersion.try_parse(Parameters["DomoticzVersion"])
+                if (not versionParsed or domoticzVersion >= DomoticzVersion(2023, 2, True)):
+                    self.domoticzRemoteTempUrl = f'{self.DomoticzBaseUrl}/json.htm?type=command&param=getdevices&rid={self.RemoteTempDeviceId}'
+                else:
+                    self.domoticzRemoteTempUrl = f'{self.DomoticzBaseUrl}/json.htm?type=devices&rid={self.RemoteTempDeviceId}'
 
             try:
                 self.RemoteTempMaxEllapsedMinutes = int(Parameters["Mode3"])
@@ -206,10 +215,9 @@ class BasePlugin:
       
         Domoticz.Debug("TrySendRemoteTemp")
         
-        domoticzRemoteTempUrl = self.DomoticzBaseUrl + '/json.htm?type=devices&rid=' + str(self.RemoteTempDeviceId)
-        Domoticz.Debug(" Querying Domoticz remote temp : " + domoticzRemoteTempUrl)
+        Domoticz.Debug(" Querying Domoticz remote temp : " + self.domoticzRemoteTempUrl)
 
-        request = urllib.request.Request(domoticzRemoteTempUrl)
+        request = urllib.request.Request(self.domoticzRemoteTempUrl)
         response = urllib.request.urlopen(request, timeout=0.5)
         requestResponse = response.read()
         json_object = json.loads(requestResponse)
