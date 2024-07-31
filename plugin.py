@@ -6,7 +6,7 @@
 #   Plugin parameter definition below will be parsed during startup and copied into Manifest.xml, this will then drive the user interface in the Hardware web page
 
 """
-<plugin key="MitsubishiHpMqtt" name="Mitsubishi Heatpump MQTT interface Plugin" author="Masure" version="1.3" externallink="https://github.com/Masurov/Domoticz-MitsubishiHpMQTT-Plugin">
+<plugin key="MitsubishiHpMqtt" name="Mitsubishi Heatpump MQTT interface Plugin" author="Masure" version="1.4" externallink="https://github.com/Masurov/Domoticz-MitsubishiHpMQTT-Plugin">
     <description>
         <h2>Mitsubishi Heatpump MQTT Interface</h2>
         <p>Please read the github documentation for prerequisites</p>
@@ -206,11 +206,16 @@ class BasePlugin:
       
         Domoticz.Debug("TrySendRemoteTemp")
         
-        domoticzRemoteTempUrl = self.DomoticzBaseUrl + '/json.htm?type=devices&rid=' + str(self.RemoteTempDeviceId)
+        # HTTP API changed since 2023.2
+        domVersion = str(Parameters["DomoticzVersion"])
+        if (domVersion[:2] == "20" and domVersion >= "2023.2"):
+            domoticzRemoteTempUrl = self.DomoticzBaseUrl + '/json.htm?type=command&param=getdevices&rid=' + str(self.RemoteTempDeviceId)
+        else:
+            domoticzRemoteTempUrl = self.DomoticzBaseUrl + '/json.htm?type=devices&rid=' + str(self.RemoteTempDeviceId)
         Domoticz.Debug(" Querying Domoticz remote temp : " + domoticzRemoteTempUrl)
 
         request = urllib.request.Request(domoticzRemoteTempUrl)
-        response = urllib.request.urlopen(request, timeout=0.5)
+        response = urllib.request.urlopen(request, timeout=1)
         requestResponse = response.read()
         json_object = json.loads(requestResponse)
 
