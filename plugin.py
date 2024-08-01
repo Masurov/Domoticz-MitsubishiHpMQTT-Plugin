@@ -34,7 +34,8 @@
         <param field="Mode1" label="Remote temperature device Idx (leave blank to use internal heatpump sensor)" width="150px" required="false" default=""/>
         <param field="Mode2" label="Domoticz base url (required only if you use a remote temperature device)" width="300px" required="false" default="http://localhost:8080"/>
         <param field="Mode3" label="Don't send remote temp after being unseen for X minutes" width="50px" required="true" default="30"/>       
-        <param field="Mode5" label="Heatpump MQTT topic" width="300px" required="true" default="heatpump"/>       
+        <param field="Mode4" label="Remote temperature retrieval timeout in seconds" width="50px" required="false" default="0.5"/>
+        <param field="Mode5" label="Heatpump MQTT topic" width="300px" required="true" default="heatpump"/>
         <param field="Mode6" label="Debug" width="75px">
             <options>
                 <option label="Extra verbose: (Framework logs 2+4+8+16+64 + MQTT dump)" value="Verbose+"/>
@@ -118,7 +119,11 @@ class BasePlugin:
             except ValueError :
                 self.RemoteTempMaxEllapsedMinutes = 30
                 Domoticz.Error("Wrong parameter value for remote temp sensor maximum minutes, setting default : " + str(self.RemoteTempMaxEllapsedMinutes))
-                
+
+            try:
+                self.RemoteTempDeviceGetTimeout = float(Parameters["Mode4"])
+            except ValueError:
+                self.RemoteTempDeviceGetTimeout = 0.5
 
             self.mappedDevicesByUnit = {}
             self.payloadKeyToDevice = bijection.Bijection()
@@ -218,7 +223,7 @@ class BasePlugin:
         Domoticz.Debug(" Querying Domoticz remote temp : " + self.domoticzRemoteTempUrl)
 
         request = urllib.request.Request(self.domoticzRemoteTempUrl)
-        response = urllib.request.urlopen(request, timeout=0.5)
+        response = urllib.request.urlopen(request, timeout=self.RemoteTempDeviceGetTimeout)
         requestResponse = response.read()
         json_object = json.loads(requestResponse)
 
