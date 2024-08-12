@@ -75,6 +75,7 @@ To update:
 
 | Version | Information                                                      |
 |---------|------------------------------------------------------------------|
+| 1.41    | Python >= 3.10 compatibility                                     |
 | 1.4     | Remote temperature sending compatibility with Domoticz >= 2023.2 |
 | 1.3     | Added remote temperature sending to the heatpump                 |
 | 1.2     | Added login and password parameters for MQTT broker connection   |
